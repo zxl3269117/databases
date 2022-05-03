@@ -4,6 +4,11 @@ USE chat;
 
 CREATE TABLE messages (
   /* Describe your table here.*/
+  ID int,
+  username varchar(255),
+  message varchar(255),
+  roomname varchar(255),
+  PRIMARY KEY (ID)
 );
 
 /* Create other tables and define schemas for them here! */

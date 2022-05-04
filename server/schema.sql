@@ -5,7 +5,7 @@ USE chat;
 CREATE TABLE messages (
   /* Describe your table here.*/
   ID int,
-  username varchar(255),
+  username varchar(255) FOREIGN KEY REFERENCES user(username),
   texts varchar(255),
   roomname varchar(255),
   PRIMARY KEY (ID)
@@ -13,7 +13,11 @@ CREATE TABLE messages (
 
 /* Create other tables and define schemas for them here! */
 
-
+CREATE TABLE users (
+  ID int,
+  username varchar(255),
+  PRIMARY KEY (username)
+);
 
 
 /*  Execute this file from the command line by typing:

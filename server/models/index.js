@@ -3,11 +3,12 @@ var db = require('../db');
 module.exports = {
   messages: {
     get: function (callback) {
-      db.query('SELECT * FROM messages', function(err, result, fields) {
+      db.query('SELECT * FROM messages', function(err, result) {
         if (err) {
           throw err;
         }
-        console.log(result);
+        console.log('from model', result);
+        callback(result);
       });
     }, // a function which produces all the messages
     post: function () {} // a function which can be used to insert a message into the database

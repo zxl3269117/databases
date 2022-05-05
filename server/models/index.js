@@ -7,16 +7,41 @@ module.exports = {
         if (err) {
           throw err;
         }
-        console.log('from model', result);
         callback(result);
       });
     }, // a function which produces all the messages
-    post: function () {} // a function which can be used to insert a message into the database
+    post: function (body, callback) {
+      var query = 'INSERT INTO messages (texts, roomname) values (?, ?)';
+      var queryArgs = [body.message, body.roomname];
+      db.query(query, queryArgs, (err, result) => {
+        if (err) {
+          throw err;
+        }
+        callback();
+      });
+
+    } // a function which can be used to insert a message into the database
   },
 
   users: {
     // Ditto as above.
-    get: function () {},
+
+    // const query = 'SELECT * ' +
+    //               'FROM `users` ' +
+    //               'JOIN `departments` ON `departments`.`id` = `users`.`department_id`';
+
+    get: function (user, callback) {
+      console.log('models user argument', user);
+      //var query = `SELECT messages.texts FROM messages INNER JOIN users ON messages.username_id = users.id WHERE users.name = ${user}`;
+      db.query(`SELECT messages.texts FROM messages INNER JOIN users ON messages.username_id = users.id WHERE users.username = "${user}"`
+        , (err, res) => {
+          if (err) {
+            throw err;
+          }
+          console.log(res);
+          callback(null, res);
+        });
+    },
     post: function () {}
   }
 };

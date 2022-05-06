@@ -17,10 +17,17 @@ describe('Persistent Node Chat Server', function() {
     dbConnection.connect();
 
     var tablename = "messages"; // TODO: fill this out
-
+    var usertable = "users";
     /* Empty the db table before each test so that multiple tests
      * (or repeated runs of the tests) won't screw each other up: */
-    dbConnection.query('truncate ' + tablename, done);
+    //SET FOREIGN_KEY_CHECKS = 0;truncate messages; truncate users
+    //dbConnection.query('truncate ' + tablename, done);
+    dbConnection.query('SET FOREIGN_KEY_CHECKS = 0', () => {
+      dbConnection.query('truncate messages', () => {
+        dbConnection.query('truncate users;', done);
+      });
+    });
+
   });
 
   afterEach(function() {
@@ -95,26 +102,39 @@ describe('Persistent Node Chat Server', function() {
 
   it('should get users from a get request', function(done) {
 
-    dbConnection.query('INSERT INTO users (username) VALUES ("Valjean")', function (err) {
-      if (err) { throw err; }
+    dbConnection.query('INSERT INTO users (username) VALUES ("Valjean")', ()=> {
+      dbConnection.query('INSERT INTO messages (username_id, texts, roomname) VALUES (1, "messages i created", "lobby")', () => {
+        request({
+          method: 'GET',
+          url: 'http://127.0.0.1:3001/classes/users',
+          json: {username: 'Valjean'}
+        }, function(error, response, body) {
+          expect(body[0].texts).to.equal('messages i created');
+          done();
+        });
+      });
     });
 
-    dbConnection.query('INSERT INTO messages (username_id, texts, roomname) VALUES (1, "messages i created", "lobby")', function (err) {
-      if (err) { throw err; }
-    });
+  });
 
+
+  it('Should insert username to the user table', function(done) {
+    // Post the user to the chat server.
     request({
-      method: 'GET',
-      url: 'http://127.0.0.1:3001/classes/users',
-      json: {username: 'Valjean'}
-    }, function(error, response, body) {
-      // console.log(body[0]);
-      // var messageLog = JSON.parse(body[0]);
-      // console.log(messageLog);
-      expect(body[0].texts).to.equal('messages i created');
-      // expect(messageLog[0].texts).to.equal('Men like you can never change!');
-      // expect(messageLog[0].roomname).to.equal('main');
-      done();
+      method: 'POST',
+      uri: 'http://127.0.0.1:3001/classes/users',
+      json: { username: 'Amy' }
+    }, function () {
+
+      var queryString = 'SELECT * FROM users';
+      var queryArgs = [];
+
+      dbConnection.query(queryString, queryArgs, function(err, results) {
+        expect(results.length).to.equal(1);
+        expect(results[0].username).to.equal('Amy');
+
+        done();
+      });
     });
   });
 });

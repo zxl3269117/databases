@@ -26,23 +26,25 @@ module.exports = {
   users: {
     // Ditto as above.
 
-    // const query = 'SELECT * ' +
-    //               'FROM `users` ' +
-    //               'JOIN `departments` ON `departments`.`id` = `users`.`department_id`';
-
     get: function (user, callback) {
-      console.log('models user argument', user);
       //var query = `SELECT messages.texts FROM messages INNER JOIN users ON messages.username_id = users.id WHERE users.name = ${user}`;
       db.query(`SELECT messages.texts FROM messages INNER JOIN users ON messages.username_id = users.id WHERE users.username = "${user}"`
         , (err, res) => {
           if (err) {
             throw err;
           }
-          console.log(res);
           callback(null, res);
         });
     },
-    post: function () {}
+    post: function (user, callback) {
+      db.query(`INSERT INTO users (username) values ("${user}")`,
+        (err, res) => {
+          if (err) {
+            throw err;
+          }
+          callback();
+        });
+    }
   }
 };
 

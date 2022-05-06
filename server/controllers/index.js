@@ -19,15 +19,16 @@ module.exports = {
   users: {
     // Ditto as above
     get: function (req, res) {
-      console.log('users reqest body', req.body.username);
       models.users.get(req.body.username, (err, result) => {
         res.writeHead(200);
-        console.log('user result', JSON.stringify(result));
         res.end(JSON.stringify(result));
       });
     },
     post: function (req, res) {
-      res.end();
+      models.users.post(req.body.username, () => {
+        res.writeHead(201);
+        res.end(JSON.stringify(req.body));
+      });
     }
   }
 };

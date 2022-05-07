@@ -1,49 +1,61 @@
-var models = require('../db');
+var db = require('../db');
 
 module.exports = {
   messages: {
     get: function (callback) {
-      db.query('SELECT * FROM messages', function(err, result) {
-        if (err) {
-          throw err;
-        }
-        callback(result);
-      });
+      db.Message.findAll({
+        attributes: ['id', 'texts', 'roomname']
+      })
+        .then(function(messages) {
+          var result = [];
+          messages.forEach(function(message) {
+            result.push(message.dataValues);
+          });
+          callback(result);
+        })
+        .catch(function(err) {
+          console.log(err);
+        });
     }, // a function which produces all the messages
-    post: function (body, callback) {
-      var query = 'INSERT INTO messages (texts, roomname) values (?, ?)';
-      var queryArgs = [body.message, body.roomname];
-      db.query(query, queryArgs, (err, result) => {
-        if (err) {
-          throw err;
-        }
-        callback();
-      });
 
+    post: function (body, callback) {
+      var text = body.message;
+      var roomname = body.roomname;
+      db.Message.create({
+        texts: text,
+        roomname: roomname
+      })
+        .then(callback)
+        .catch((err) => { console.log(err); });
     } // a function which can be used to insert a message into the database
   },
 
   users: {
-    // Ditto as above.
 
     get: function (user, callback) {
-      //var query = `SELECT messages.texts FROM messages INNER JOIN users ON messages.username_id = users.id WHERE users.name = ${user}`;
-      db.query(`SELECT messages.texts FROM messages INNER JOIN users ON messages.username_id = users.id WHERE users.username = "${user}"`
-        , (err, res) => {
-          if (err) {
-            throw err;
-          }
-          callback(null, res);
+      db.Message.findAll({
+        attributes: ['texts'],
+        include: [{
+          model: db.User,
+          required: true,
+          where: {'username': user},
+        }],
+      })
+        .then(messages => {
+          var result = [];
+          messages.forEach(function(message) {
+            result.push(message.dataValues);
+          });
+          callback(null, result);
         });
     },
+
     post: function (user, callback) {
-      db.query(`INSERT INTO users (username) values ("${user}")`,
-        (err, res) => {
-          if (err) {
-            throw err;
-          }
-          callback();
-        });
+      db.User.create({
+        username: user,
+      })
+        .then(callback)
+        .catch((err) => { console.log(err); });
     }
   }
 };

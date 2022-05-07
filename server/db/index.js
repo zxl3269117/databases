@@ -1,15 +1,38 @@
 var Sequelize = require('sequelize');
-var db = new Sequelize('chat', 'root', 'mypassword');
+var db = new Sequelize('chat', 'root', 'mypassword', {
+  define: {timestamps: false}
+});
 
 var User = db.define('User', {
-  username: Sequelize.STRING
+  username: Sequelize.STRING,
+  id: {
+    type: Sequelize.INTEGER,
+    primaryKey: true
+  }
+}, {
+  timestamps: false
 });
 
 var Message = db.define('Message', {
-  'username_id': Sequelize.INTEGER,
+  'username_id': {
+    type: Sequelize.INTEGER,
+  },
   texts: Sequelize.STRING,
-  roomname: Sequelize.STRING
+  roomname: Sequelize.STRING,
+}, {
+  timestamps: false
 });
+
+User.hasMany(Message, {
+  foreignKey: 'username_id'
+});
+
+Message.belongsTo(User, {foreignKey: 'username_id'});
+
+
+// User.sync({ alter: true });
+// Message.sync({ alter: true });
+
 
 exports.User = User;
 exports.Message = Message;

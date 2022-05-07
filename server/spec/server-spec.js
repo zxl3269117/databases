@@ -100,7 +100,7 @@ describe('Persistent Node Chat Server', function() {
     });
   });
 
-  it('should get users from a get request', function(done) {
+  it('should get messages from a user from a get request', function(done) {
 
     dbConnection.query('INSERT INTO users (username) VALUES ("Valjean")', ()=> {
       dbConnection.query('INSERT INTO messages (username_id, texts, roomname) VALUES (1, "messages i created", "lobby")', () => {
@@ -137,4 +137,42 @@ describe('Persistent Node Chat Server', function() {
       });
     });
   });
+
+  it('should get ALL messages from a specific user using a get request', function(done) {
+    var queryString = 'INSERT INTO users (username) VALUES (?)';
+    var queryArgs = ['Ziqian', 'Noelle'];
+
+    dbConnection.query(queryString, queryArgs, ()=> {
+      var queryString = 'INSERT INTO messages (username_id, texts, roomname) VALUES ?';
+      var queryArgs = [
+        [1, 'Ziqian first message', 'lobby'],
+        [1, 'Ziqian second message', 'lobby'],
+        [2, 'Noelle frist message', 'lobby']
+      ];
+      dbConnection.query(queryString, [queryArgs], () => {
+        request({
+          method: 'GET',
+          url: 'http://127.0.0.1:3001/classes/users',
+          json: {username: 'Ziqian'}
+        }, function(error, response, body) {
+          expect(body[1].texts).to.equal('Ziqian second message');
+          done();
+        });
+      });
+    });
+  });
+
+  it('should post user to the users table', function(done) {
+    request({
+      method: 'POST',
+      uri: 'http://127.0.0.1:3001/classes/users',
+      json: { username: 'Noelle' }
+    }, function () {
+      dbConnection.query('SELECT username FROM users', (error, response) => {
+        expect(response[0].username).to.equal('Noelle');
+        done();
+      });
+    });
+  });
+
 });

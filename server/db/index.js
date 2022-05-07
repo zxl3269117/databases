@@ -30,9 +30,5 @@ User.hasMany(Message, {
 Message.belongsTo(User, {foreignKey: 'username_id'});
 
 
-// User.sync({ alter: true });
-// Message.sync({ alter: true });
-
-
 exports.User = User;
 exports.Message = Message;

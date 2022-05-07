@@ -21,11 +21,22 @@ module.exports = {
     post: function (body, callback) {
       var text = body.message;
       var roomname = body.roomname;
-      db.Message.create({
-        texts: text,
-        roomname: roomname
+      var username = body.username || 'anonymous';
+      var userid = body.username_id;
+
+      db.User.create({
+        username: username,
+        id: userid
       })
-        .then(callback)
+        .then(() => {
+          db.Message.create({
+            texts: text,
+            roomname: roomname,
+            "username_id": userid
+          })
+            .then(callback)
+            .catch((err) => { console.log(err); });
+        })
         .catch((err) => { console.log(err); });
     } // a function which can be used to insert a message into the database
   },

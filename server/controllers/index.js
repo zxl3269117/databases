@@ -21,7 +21,6 @@ module.exports = {
     get: function (req, res) {
       models.users.get(req.body.username, (err, result) => {
         res.writeHead(200);
-        console.log('from controller response', JSON.stringify(result));
         res.end(JSON.stringify(result));
       });
     },

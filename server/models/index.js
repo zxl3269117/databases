@@ -32,7 +32,7 @@ module.exports = {
           db.Message.create({
             texts: text,
             roomname: roomname,
-            "username_id": userid
+            'username_id': userid
           })
             .then(callback)
             .catch((err) => { console.log(err); });

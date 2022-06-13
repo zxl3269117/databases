@@ -1,5 +1,5 @@
 var Sequelize = require('sequelize');
-var db = new Sequelize('chat', 'root', 'mypassword', {
+var db = new Sequelize('chat', 'root', '', {
   define: {timestamps: false}
 });
 
